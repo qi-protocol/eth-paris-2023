@@ -1,0 +1,11 @@
+cache
+artifacts
+node_modules
+.env
+coverage
+coverage.json
+.DS_Store
+compiler_config.json
+out
+lib
+.deps
