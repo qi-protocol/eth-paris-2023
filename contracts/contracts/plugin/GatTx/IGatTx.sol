@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.17;
 
-interface ILimitOrder {
+interface IGatTx {
     event DailyLimitChanged(address[] token, uint256[] limit);
     event PreSetDailyLimit(address[] token, uint256[] limit);
     event CancelSetDailyLimit(address[] token, uint256[] limit);
