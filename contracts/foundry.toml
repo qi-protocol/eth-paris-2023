@@ -1,0 +1,19 @@
+[profile.default]
+src = 'contracts'
+test = 'test'
+out = "out"
+libs = ["lib"]
+gas_reports = [
+    "GatTx",
+]
+# gas_reports_ignore = ["dev","test"]
+solc = "0.8.20"
+optimizer = true
+optimizer_runs = 100000
+via_ir = true
+
+# RPC config in .env file
+[rpc_endpoints]
+goerli = "${ETH_GOERLI_PROVIDER}"
+
+# See more config options https://github.com/foundry-rs/foundry/tree/master/config
