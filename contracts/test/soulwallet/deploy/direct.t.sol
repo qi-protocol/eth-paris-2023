@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "../base/SoulWalletInstence.sol";
+//import "../base/SoulWalletInstence.sol";
 import "@source/dev/Tokens/TokenERC20.sol";
 
 contract DeployDirectTest is Test {
