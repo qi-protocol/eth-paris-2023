@@ -3,22 +3,30 @@ use aa_bundler_primitives::{
     UserOperation, UserOperationHash,
     UserOperationReceipt, Wallet,
 };
+use mev_share_rpc_api::{BundleItem, FlashbotsSignerLayer, MevApiClient, SendBundleRequest};
+use tokio::task::JoinHandle;
+use url::Url;
 use async_trait::async_trait;
 use ethers::{
-    prelude::SignerMiddleware,
-    providers::Middleware,
+    prelude::{SignerMiddleware, LocalWallet},
+    providers::{Middleware, Ws, Provider},
     signers::Signer,
     types::{transaction::eip2718::TypedTransaction, Address, H160, U256, U64},
 };
+use jsonrpsee::http_client::{transport::Error as HttpError, HttpClientBuilder};
 use jsonrpsee::{
     core::RpcResult,
     proc_macros::rpc,
     tracing::info,
 };
+use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+use tower::ServiceBuilder;
+use std::env;
 use std::sync::Arc;
 use std::time::Duration;
+use ethers_flashbots::{BundleRequest, FlashbotsMiddleware, PendingBundleError::BundleNotIncluded};
 
 /// A simplified bundler implementation based on AA-Bundler
 /// https://github.com/Vid201/aa-bundler
@@ -118,17 +126,31 @@ where
         user_operation: UserOperation,
         entry_point: Address,
     ) -> RpcResult<UserOperationHash> {
-        let wallet = Arc::new(
-		SignerMiddleware::new(
-			self.eth_provider.clone(),
-			self.wallet.signer.clone(),
- 	       )
+
+	dotenv().ok();
+	let goerli_url = env::var("WSS_RPC").expect("WSS_RPC not set");
+
+	let provider = Arc::new(
+		Provider::<Ws>::connect(goerli_url.clone())
+			.await
+			.ok()
+			.ok_or(anyhow::anyhow!("Error connecting to Goerli"))
+			.unwrap(),
 	);
 
-        let entry_point_instance =
-            entrypointgoerli::entrypointgoerli::new(entry_point, wallet.clone());
+        let _bundle_signer = env::var("FLASHBOTS_IDENTIFIER")
+            .expect("FLASHBOTS_IDENTIFIER environment variable is not set");
 
-        let nonce = wallet
+        let bundle_signer = _bundle_signer.parse::<LocalWallet>().unwrap();
+	let signing_middleware = FlashbotsSignerLayer::new(bundle_signer.clone());
+	let service_builder = ServiceBuilder::new()
+		.map_err(HttpError::Http)
+		.layer(signing_middleware);
+
+        let entry_point_instance =
+            entrypointgoerli::entrypointgoerli::new(entry_point, provider.clone());
+
+        let nonce = provider
             .clone()
             .get_transaction_count(self.wallet.signer.address(), None)
             .await
@@ -142,14 +164,34 @@ where
             .clone();
         tx.set_nonce(nonce).set_chain_id(U64::from(80001));
 
-        let tx = wallet
-            .send_transaction(tx, None)
-            .await
-            .unwrap()
-            .interval(Duration::from_millis(75));
-        let tx_hash = tx.tx_hash();
+	let typed_tx = TypedTransaction::Eip1559(tx.clone().into());
+	let raw_tx = self.wallet.signer.clone().sign_transaction(&typed_tx).await.unwrap();
+	let raw_signed_tx = tx.rlp_signed(&raw_tx);
 
-        return Ok(UserOperationHash(tx_hash));
+        // Add tx to Flashbots bundle
+        let mut bundle_req = BundleRequest::new();
+        bundle_req = bundle_req.push_transaction(raw_signed_tx.clone());
+	let tx_hash = bundle_req.transaction_hashes()[0];
+
+	// Build bundle
+	let mut bundle_body = Vec::new();
+	bundle_body.push(BundleItem::Hash { hash: tx_hash });
+	bundle_body.push(BundleItem::Tx { tx: raw_signed_tx, can_revert: false });
+
+	let bundle = SendBundleRequest { bundle_body, ..Default::default() };
+
+	// Set up the rpc client
+	let url = "https://relay.flashbots.net:443";
+	let client = HttpClientBuilder::default()
+		.set_middleware(service_builder)
+		.build(url)
+		.expect("Failed to create http client");
+
+	// Send bundle
+	let res = client.send_bundle(bundle.clone()).await.unwrap();
+	log::info!("Got a bundle response: {:?}", res);
+
+        return Ok(UserOperationHash(res.bundle_hash));
     }
 
     // TODO: Implement this
