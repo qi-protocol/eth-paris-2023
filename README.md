@@ -1,12 +1,26 @@
 # eth-paris-2023
 
-### Purpose:
+## Features
+* [Good-After-Time](https://docs.cow.fi/tutorials/how-to-place-erc-1271-smart-contract-orders/good-after-time-gat-orders) order support for 4337 smart wallets
+* MEV-rebate for smart wallets through a [feature-enriched bundler](https://github.com/qi-protocol/eth-paris-2023/blob/main/baby_bundler/src/bundler/bundler.rs)
+
+## Purpose:
 
 To create plugin / extension for account abstraction wallets with such a feature enabled. For our purposes we will create an example plugin for Good After Time execution.
 
 As a bonus this extension can be selectively activated!
 
-### Background - How do they work?
+## Background - How do they work?
+
+### Bundler
+Run `cargo run` to start up the bundler at `127.0.0.1:3000`
+
+Run `cargo test` to populate and send the `UserOperation` that swap ETH for USDC on UniswapV2(see how to populate a `UserOperation` using [Alloy](https://github.com/alloy-rs/core) [here](https://github.com/qi-protocol/eth-paris-2023/blob/e5ec66687b4ca6fea87f7cfa662d5cfa2eec76f7/baby_bundler/src/main.rs#L99))
+
+TODO: Explanation
+
+
+### GAT Order Plug-in
 
 Plugins in this context function as an execution call before or after the main calldata execution. There likely is a method to add plugins to an existing wallet via modules, but for now this can be ignored and adding plugins only refers to adding during deployment.
 
