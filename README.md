@@ -2,7 +2,7 @@
 
 ## Features
 * [Good-After-Time](https://docs.cow.fi/tutorials/how-to-place-erc-1271-smart-contract-orders/good-after-time-gat-orders) order support for 4337 smart wallets
-* MEV-rebate for smart wallets through a [feature-enriched bundler](https://github.com/qi-protocol/eth-paris-2023/blob/main/baby_bundler/src/bundler/bundler.rs)
+* MEV rebate for smart wallets through a [feature-enriched bundler](https://github.com/qi-protocol/eth-paris-2023/blob/main/baby_bundler/src/bundler/bundler.rs)
 
 ## Purpose:
 
