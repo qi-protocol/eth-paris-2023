@@ -1,5 +1,5 @@
 {
-  "name": "soulwallet-contract",
+  "name": "Intentful-POC",
   "scripts": {
     "build": "forge build --sizes",
     "test": "forge test -vvv",
