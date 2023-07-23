@@ -1,5 +1,8 @@
 use crate::bindings::entrypointgoerli::entrypointgoerli;
-use aa_bundler_primitives::{UserOperation, UserOperationHash, UserOperationReceipt, Wallet};
+use aa_bundler_primitives::{
+    UserOperation, UserOperationHash,
+    UserOperationReceipt, Wallet,
+};
 use async_trait::async_trait;
 use ethers::{
     prelude::SignerMiddleware,
@@ -7,7 +10,11 @@ use ethers::{
     signers::Signer,
     types::{transaction::eip2718::TypedTransaction, Address, H160, U256, U64},
 };
-use jsonrpsee::{core::RpcResult, proc_macros::rpc, tracing::info};
+use jsonrpsee::{
+    core::RpcResult,
+    proc_macros::rpc,
+    tracing::info,
+};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;
@@ -41,6 +48,9 @@ where
         call_gas_limit: U256,
         wallet: Wallet,
     ) -> Self {
+	// let bundle_signer = env::var("FLASHBOTS_IDENTIFIER").unwrap_or_else(|e| {
+	//     panic!("Please set the FLASHBOTS_IDENTIFIER environment variable");
+	// });
         Self {
             eth_provider,
             eth_chain_id: U64::from(5),
@@ -108,10 +118,12 @@ where
         user_operation: UserOperation,
         entry_point: Address,
     ) -> RpcResult<UserOperationHash> {
-        let wallet = Arc::new(SignerMiddleware::new(
-            self.eth_provider.clone(),
-            self.wallet.signer.clone(),
-        ));
+        let wallet = Arc::new(
+		SignerMiddleware::new(
+			self.eth_provider.clone(),
+			self.wallet.signer.clone(),
+ 	       )
+	);
 
         let entry_point_instance =
             entrypointgoerli::entrypointgoerli::new(entry_point, wallet.clone());
@@ -140,6 +152,7 @@ where
         return Ok(UserOperationHash(tx_hash));
     }
 
+    // TODO: Implement this
     async fn estimate_user_operation_gas(
         &self,
         user_operation: UserOperation,
@@ -154,6 +167,7 @@ where
         })
     }
 
+    // TODO: Implement this
     async fn get_user_operation_receipt(
         &self,
         user_operation_hash: UserOperationHash,
