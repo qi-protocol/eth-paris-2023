@@ -52,25 +52,23 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-
 #[cfg(test)]
 mod test {
-    use jsonrpsee::rpc_params;
-    use jsonrpsee::http_client::HttpClientBuilder;
-    use jsonrpsee::core::client::ClientT;
-    use tracing;
-    use tracing_subscriber::fmt;
-    use ethers::{
-        types::Address,
-        providers::{Provider, Middleware, Ws},
-        
-    };
     use aa_bundler_primitives::{UserOperation, UserOperationHash};
-    use std::env;
-    use dotenv::dotenv;
-    use std::sync::Arc;
     use alloy_primitives::{Address as alloy_Address, U256 as alloy_U256};
     use alloy_sol_types::{sol, SolCall};
+    use dotenv::dotenv;
+    use ethers::{
+        providers::{Middleware, Provider, Ws},
+        types::Address,
+    };
+    use jsonrpsee::core::client::ClientT;
+    use jsonrpsee::http_client::HttpClientBuilder;
+    use jsonrpsee::rpc_params;
+    use std::env;
+    use std::sync::Arc;
+    use tracing;
+    use tracing_subscriber::fmt;
 
     sol! {
         #[derive(Debug)]
@@ -79,7 +77,6 @@ mod test {
 
     #[tokio::test]
     async fn test() -> anyhow::Result<()> {
-
         fmt::Subscriber::builder()
             .with_max_level(tracing::Level::INFO)
             .init();
@@ -93,8 +90,14 @@ mod test {
 
         // test eth_supportedEntryPoints
         let params = rpc_params![];
-        let response: Result<Vec<Address>, _> = client.request("eth_supportedEntryPoints", params).await;
-        assert_eq!(response.unwrap()[0], "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789".parse::<Address>().unwrap());
+        let response: Result<Vec<Address>, _> =
+            client.request("eth_supportedEntryPoints", params).await;
+        assert_eq!(
+            response.unwrap()[0],
+            "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789"
+                .parse::<Address>()
+                .unwrap()
+        );
 
         // test eth_sendUserOperation
         dotenv().ok();
@@ -123,9 +126,11 @@ mod test {
 
         let path = vec![
             // WETH address
-            alloy_Address::parse_checksummed("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", None).unwrap(),
+            alloy_Address::parse_checksummed("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", None)
+                .unwrap(),
             // USDt address
-            alloy_Address::parse_checksummed("0xdAC17F958D2ee523a2206206994597C13D831ec7", None).unwrap(),
+            alloy_Address::parse_checksummed("0xdAC17F958D2ee523a2206206994597C13D831ec7", None)
+                .unwrap(),
         ];
 
         // get call data using alloy_sol_types
@@ -149,22 +154,18 @@ mod test {
             .max_priority_fee_per_gas(1_000_000_000.into())
             .signature(signature.parse().unwrap());
 
-        let uos =  vec![
-            uo.clone(),
-        ];
-
+        let uos = vec![uo.clone()];
 
         // Send user operation via eth_sendUserOperation to the JSON RPC server
         let params = rpc_params![
             uos,
-            "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789".parse::<Address>().unwrap()
+            "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789"
+                .parse::<Address>()
+                .unwrap()
         ];
-        let _response: Result<UserOperationHash, _> = client.request("eth_supportedEntryPoints", params).await;
-
+        let _response: Result<UserOperationHash, _> =
+            client.request("eth_supportedEntryPoints", params).await;
 
         Ok(())
     }
-
-
-
 }

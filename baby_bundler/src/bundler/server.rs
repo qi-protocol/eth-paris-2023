@@ -1,3 +1,4 @@
+// Credit to AA-bundler's RPC crate: https://github.com/Vid201/aa-bundler/tree/main/crates/rpc
 use anyhow;
 use hyper::{http::HeaderValue, Method};
 use hyper::{Body, Request, Response};
