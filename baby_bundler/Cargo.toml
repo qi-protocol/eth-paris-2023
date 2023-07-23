@@ -1,0 +1,31 @@
+[package]
+name = "baby_bundler"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.72"
+dotenv = "0.15.0"
+ethers = { version = "2.0.7", features=["ws"] }
+log = "0.4.19"
+tokio = "1.29.1"
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+aa_bundler_primitives = { git = "https://github.com/Vid201/aa-bundler.git", rev="a905e69", package = "aa-bundler-primitives" }
+mev_share_rpc_api = { git = "https://github.com/da-bao-jian/mev-share-rs.git", rev="fbd3ffc", package = "mev-share-rpc-api" }
+serde = "1.0.174"
+async-trait = "0.1.72"
+env = "0.0.0"
+tower = { version = "0.4.13" }
+tower-http = { version = "0.4.1", features = ["cors"] }
+jsonrpsee = { version = "0.18.2", features = ["server", "macros", "client"] }
+hyper = "0.14.27"
+expanded-pathbuf = "0.1"
+serde_json = "1"
+env_logger = "0.10.0"
+alloy-sol-types = "0.2.0"
+alloy-primitives = "0.2.0"
+ethers-flashbots = "0.13.1"
+url = "2.4.0"
