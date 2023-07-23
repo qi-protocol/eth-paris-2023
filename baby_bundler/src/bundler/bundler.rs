@@ -113,6 +113,7 @@ where
         .unwrap()])
     }
 
+    #[allow(clippy::vec_init_then_push)]
     async fn send_user_operation(
         &self,
         user_operation: UserOperation,
@@ -152,7 +153,7 @@ where
             .unwrap();
 
         // Push user operation to array
-        let mut user_op_vec = Vec::new();
+        let mut user_op_vec = vec![];
         user_op_vec.push(user_operation.clone());
         let mut tx: TypedTransaction = entry_point_instance
             .handle_ops(user_op_vec, self.wallet.signer.address())
@@ -177,7 +178,7 @@ where
         let tx_hash = bundle_req.transaction_hashes()[0];
 
         // Build bundle
-        let mut bundle_body = Vec::new();
+        let mut bundle_body = vec![];
         bundle_body.push(BundleItem::Hash { hash: tx_hash });
         bundle_body.push(BundleItem::Tx {
             tx: raw_signed_tx,
@@ -225,7 +226,7 @@ where
         Ok(EstimateUserOperationGasResponse {
             pre_verification_gas: U256::from(0),
             verification_gas_limit: U256::from(0),
-            call_gas_limit: U256::from(self.call_gas_limit),
+            call_gas_limit: self.call_gas_limit,
         })
     }
 
