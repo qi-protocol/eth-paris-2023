@@ -40,8 +40,17 @@ contract GatTx is BasePlugin, IGatTx, SafeLock {
         requiredPrefund = requiredGas * userOp.maxFeePerGas;
     }
 
+    // this plugin is a preHook, meaning executes before the main calldata
+    // concept:
+    // x bytes used for calldata to be executed, remaining bytes are ignored and can be used for storage data
+    // we can there store GAT timestamp uint256 and nonce
     function preHook(address target, uint256 value, bytes calldata data) external pure override {
         (target, value, data);
+        bytes memory data_ = data;
+        uint256 size;
+        assembly { size := sub(calldatasize(), 52) }
+        
+
         revert("GatTx: preHook not support");
     }
 
