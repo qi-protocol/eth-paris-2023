@@ -10,7 +10,8 @@ import "@source/plugin/Dailylimit/Dailylimit.sol";
 import "@source/helper/SignatureValidator.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract DailylimitTest is Test {
+// TODO
+contract GATTxTest is Test {
     using ECDSA for bytes32;
 
     SoulWalletInstence public soulWalletInstence;
